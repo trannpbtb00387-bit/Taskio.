@@ -1,18 +1,66 @@
-name: Maven build
+name: Taskio tests
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  all-tests:
+    name: JUnit test suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout source
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17 and Maven cache
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
-      - name: Build project
-        run: mvn -B -DskipTests package
+
+      - name: Run all JUnit tests
+        run: mvn --batch-mode --no-transfer-progress test
+
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-report
+          path: |
+            target/surefire-reports/*.xml
+            target/surefire-reports/*.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  smoke-tests:
+    name: Smoke test group
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17 and Maven cache
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Run smoke-tagged JUnit tests
+        run: mvn --batch-mode --no-transfer-progress -Dgroups=smoke test
+
+      - name: Upload smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-report
+          path: |
+            target/surefire-reports/*.xml
+            target/surefire-reports/*.txt
+          if-no-files-found: warn
+          retention-days: 14
