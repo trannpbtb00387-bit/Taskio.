@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa nhân viên | Taskio</title>
+    <link rel="stylesheet" th:href="@{/css/taskio.css}"><link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+    <main class="main-area">
+        <header class="topbar"><span class="breadcrumb">TASKIO <span>/</span> NHÂN SỰ <span>/</span> CHỈNH SỬA</span>
+            <div class="topbar-right"><a class="top-link" th:href="@{/employees}">Danh sách nhân viên</a><div th:replace="~{fragments/header :: accountMenu}"></div></div>
+        </header>
+        <section class="page-content">
+            <div class="page-heading"><div><span class="eyebrow">HỒ SƠ NHÂN VIÊN</span><h1>Chỉnh sửa thông tin</h1>
+                <p>Cập nhật tên hiển thị hoặc đặt mật khẩu mới cho nhân viên.</p></div></div>
+            <div th:if="${errorMessage}" class="flash danger" th:text="${errorMessage}"></div>
+            <section class="panel employee-edit-panel">
+                <form method="post" class="form-grid" th:action="@{/employees/{id}/edit(id=${employee.id})}">
+                    <label>Tên đăng nhập<input type="text" th:value="${employee.username}" readonly></label>
+                    <label>Tên hiển thị<input type="text" name="displayName" maxlength="100" required th:value="${employee.display_name}"></label>
+                    <label class="full-width">Đặt lại mật khẩu (không bắt buộc)
+                        <input type="password" name="newPassword" minlength="6" autocomplete="new-password" placeholder="Để trống nếu không đổi">
+                        <small>Nhập ít nhất 6 ký tự nếu cần cấp lại mật khẩu.</small>
+                    </label>
+                    <div class="full-width profile-actions"><button class="button" type="submit">Lưu thông tin</button><a class="button button-secondary" th:href="@{/employees}">Hủy</a></div>
+                </form>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

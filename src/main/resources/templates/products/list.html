@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Sản phẩm | Taskio</title>
+
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+
+<body class="app-body">
+
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+        <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+        <!-- MAIN -->
+        <main class="main-area">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+
+                <span class="breadcrumb">
+                    TASKIO <span>/</span> SẢN PHẨM
+                </span>
+
+                <div class="topbar-right">
+
+                    <a class="top-link" th:href="@{/pos}">
+                        Mở màn hình bán hàng
+                    </a>
+
+                    <div th:replace="~{fragments/header :: accountMenu}"></div>
+
+                </div>
+
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <section class="page-content">
+
+                <!-- PAGE HEADING -->
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            DANH MỤC HÀNG HÓA
+                        </span>
+
+                        <h1>
+                            Sản phẩm
+                        </h1>
+
+                        <p>
+                            Tìm nhanh theo mã hoặc tên;
+                            theo dõi giá bán và tồn hiện tại.
+                        </p>
+
+                    </div>
+
+                    <a
+                        class="button"
+                        th:href="@{/products/new}">
+                        ＋ Thêm sản phẩm
+                    </a>
+
+                </div>
+
+                <!-- FLASH MESSAGES -->
+                <div
+                    class="flash success"
+                    th:if="${successMessage}"
+                    th:text="${successMessage}">
+                </div>
+
+                <div
+                    class="flash danger"
+                    th:if="${errorMessage}"
+                    th:text="${errorMessage}">
+                </div>
+
+                <!-- PRODUCT LIST -->
+                <section class="panel">
+
+                    <!-- SEARCH -->
+                    <form
+                        class="search-row"
+                        method="get"
+                        th:action="@{/products}">
+
+                        <input
+                            name="q"
+                            th:value="${q}"
+                            placeholder="Tìm SKU hoặc tên sản phẩm">
+
+                        <button
+                            class="button button-small"
+                            type="submit">
+                            Tìm kiếm
+                        </button>
+
+                    </form>
+
+                    <!-- TABLE -->
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>TÊN SẢN PHẨM</th>
+                                    <th>GIÁ BÁN</th>
+                                    <th>TỒN KHO</th>
+                                    <th>THAO TÁC</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr th:each="p : ${items}">
+
+                                    <!-- SKU -->
+                                    <td
+                                        class="code"
+                                        th:text="${p.sku}">
+                                        SKU
+                                    </td>
+
+                                    <!-- PRODUCT NAME -->
+                                    <td
+                                        class="strong"
+                                        th:text="${p.name}">
+                                        Sản phẩm
+                                    </td>
+
+                                    <!-- PRICE -->
+                                    <td
+                                        class="money"
+                                        th:text="${#numbers.formatDecimal(
+                                            p.price,
+                                            0,
+                                            'COMMA',
+                                            0,
+                                            'POINT'
+                                        ) + ' ₫'}">
+                                        0 ₫
+                                    </td>
+
+                                    <!-- STOCK -->
+                                    <td>
+
+                                        <span
+                                            class="stock-low"
+                                            th:if="${p.stock < 5}"
+                                            th:text="${p.stock}">
+                                            0
+                                        </span>
+
+                                        <span
+                                            th:unless="${p.stock < 5}"
+                                            th:text="${p.stock}">
+                                            0
+                                        </span>
+
+                                    </td>
+
+                                    <!-- ACTIONS -->
+                                    <td>
+
+                                        <div class="row-actions">
+
+                                            <a
+                                                class="button button-small button-outline"
+                                                th:href="@{/products/{id}/edit(id=${p.id})}">
+                                                Sửa
+                                            </a>
+
+                                            <form
+                                                method="post"
+                                                th:action="@{/products/{id}/delete(id=${p.id})}"
+                                                onsubmit="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?')">
+
+                                                <button
+                                                    class="button button-small button-danger"
+                                                    type="submit">
+                                                    Xóa
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                                <!-- EMPTY STATE -->
+                                <tr th:if="${#lists.isEmpty(items)}">
+
+                                    <td
+                                        colspan="5"
+                                        class="empty-state">
+                                        Không có sản phẩm phù hợp.
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="page-footer">
+
+                    © 2026 Taskio
+
+                    <span>
+                        Quản lý bán hàng tinh gọn
+                    </span>
+
+                </footer>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

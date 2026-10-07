@@ -1,0 +1,43 @@
+<aside class="sidebar" th:fragment="sidebar">
+    <a class="brand" th:href="@{/dashboard}"><span class="brand-mark">t</span><span>taskio<span class="brand-dot">.</span></span></a>
+    <div class="sidebar-label">CỬA HÀNG</div>
+    <nav class="side-nav" aria-label="Điều hướng chính">
+        <a class="side-link" th:href="@{/dashboard}"><span class="nav-icon">⌂</span><span>Tổng quan</span></a>
+        <details class="nav-group" th:open="${view == 'orders' or view == 'uncompleted' or view == 'sales-returns'}">
+            <summary class="side-link"><span class="nav-icon">▤</span><span>Đơn hàng</span><span class="chevron">⌄</span></summary>
+            <div class="sub-nav">
+                <a th:href="@{/orders}">Danh sách đơn hàng</a>
+                <a th:href="@{/shop}">Trang đặt hàng online</a>
+                <a th:href="@{/orders/returns}">Trả hàng</a>
+                <a th:href="@{/orders/uncompleted}">Đơn chưa hoàn tất</a>
+            </div>
+        </details>
+        <details class="nav-group" th:open="${view == 'orders' and title != 'Danh sách đơn hàng'}">
+            <summary class="side-link"><span class="nav-icon">◷</span><span>Xử lý đơn hàng</span><span class="chevron">⌄</span></summary>
+            <div class="sub-nav">
+                <a th:href="@{/orders/process/waiting-confirmation}">Chờ xác nhận</a>
+                <a th:href="@{/orders/process/processing}">Đang xử lý</a>
+            </div>
+        </details>
+        <a class="side-link" th:href="@{/products}"><span class="nav-icon">▦</span><span>Sản phẩm</span></a>
+        <details class="nav-group" th:open="${view == 'inventory' or view == 'receipts' or view == 'supplier-returns'}">
+            <summary class="side-link"><span class="nav-icon">⬡</span><span>Quản lý kho</span><span class="chevron">⌄</span></summary>
+            <div class="sub-nav">
+                <a th:href="@{/inventory}">Tồn kho</a>
+                <a th:href="@{/inventory/receipts}">Nhập hàng</a>
+                <a th:href="@{/inventory/returns}">Trả hàng nhà cung cấp</a>
+            </div>
+        </details>
+        <details class="nav-group" th:open="${view == 'customers' or view == 'loyal-customers'}">
+            <summary class="side-link"><span class="nav-icon">♙</span><span>Khách hàng</span><span class="chevron">⌄</span></summary>
+            <div class="sub-nav">
+                <a th:href="@{/customers}">Khách hàng</a>
+                <a th:href="@{/customers/loyalty}">Khách hàng thân thiết</a>
+            </div>
+        </details>
+        <a class="side-link" th:if="${currentUser != null and currentUser.role == 'Quản trị viên'}" th:href="@{/promotions}"><span class="nav-icon">%</span><span>Khuyến mãi</span></a>
+        <a class="side-link" th:if="${currentUser != null and currentUser.role == 'Quản trị viên'}" th:href="@{/employees}"><span class="nav-icon">♧</span><span>Quản lý nhân viên</span></a>
+        <a class="side-link" th:href="@{/reports}"><span class="nav-icon">▥</span><span>Báo cáo</span></a>
+    </nav>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Hệ thống đang hoạt động</div>
+</aside>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Đăng nhập | Taskio</title>
+
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+
+<body class="auth-body">
+
+    <!-- BRAND -->
+    <a class="brand auth-brand" th:href="@{/about}">
+
+        <span class="brand-mark">
+            t
+        </span>
+
+        <span>
+            taskio<span class="brand-dot">.</span>
+        </span>
+
+    </a>
+
+    <!-- LOGIN CARD -->
+    <main class="auth-card">
+
+        <span class="eyebrow">
+            TASKIO · QUẢN LÝ CỬA HÀNG
+        </span>
+
+        <h1>
+            Chào mừng trở lại
+        </h1>
+
+        <p>
+            Đăng nhập để tiếp tục công việc của bạn.
+        </p>
+
+        <!-- FLASH MESSAGES -->
+        <div
+            class="flash success"
+            th:if="${successMessage}"
+            th:text="${successMessage}">
+        </div>
+
+        <div
+            class="flash danger"
+            th:if="${errorMessage}"
+            th:text="${errorMessage}">
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form
+            method="post"
+            th:action="@{/login}"
+            class="auth-form">
+
+            <label>
+                Tên đăng nhập
+
+                <input
+                    name="username"
+                    autocomplete="username"
+                    required
+                    autofocus>
+            </label>
+
+            <label>
+                Mật khẩu
+
+                <input
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required>
+            </label>
+
+            <button
+                class="button"
+                type="submit">
+                Đăng nhập
+            </button>
+
+        </form>
+
+        <!-- REGISTER -->
+        <div class="auth-bottom">
+            Chưa có tài khoản?
+            <a th:href="@{/register}">
+                Đăng ký tài khoản nhân viên
+            </a>
+        </div>
+
+        <!-- BACK -->
+        <a
+            class="back-link"
+            th:href="@{/about}">
+            ← Về trang giới thiệu
+        </a>
+
+    </main>
+
+</body>
+</html>

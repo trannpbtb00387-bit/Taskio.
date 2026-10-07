@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="accountMenu" class="account-menu">
+    <details class="account-dropdown">
+        <summary class="account-trigger">
+			<span class="avatar">
+			    <img th:if="${!#strings.isEmpty(currentUser.avatar)}"
+			         th:src="${currentUser.avatar}"
+			         alt="Ảnh đại diện">
+			    <span th:unless="${!#strings.isEmpty(currentUser.avatar)}"
+			          th:text="${currentUser.initial}">T</span>
+			</span>
+            <span class="account-label">
+                <b th:text="${currentUser.name}">Tài khoản</b>
+                <small th:text="${currentUser.role}">Nhân viên</small>
+            </span>
+            <span>⌄</span>
+        </summary>
+
+        <div class="account-popover">
+            <a th:href="@{/profile}">Hồ sơ cá nhân</a>
+            <form method="post" th:action="@{/logout}">
+                <button type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </details>
+</div>
+</body>
+</html>

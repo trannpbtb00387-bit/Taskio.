@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title th:text="${formTitle + ' | Taskio'}">
+        Sản phẩm | Taskio
+    </title>
+
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+
+<body class="app-body">
+
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+        <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+        <!-- MAIN -->
+        <main class="main-area">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+
+                <span class="breadcrumb">
+                    TASKIO <span>/</span> SẢN PHẨM
+                </span>
+
+                <div class="topbar-right">
+
+                    <a class="top-link" th:href="@{/pos}">
+                        Mở màn hình bán hàng
+                    </a>
+
+                    <div th:replace="~{fragments/header :: accountMenu}"></div>
+                </div>
+
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <section class="page-content">
+
+                <!-- PAGE HEADING -->
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            DANH MỤC HÀNG HÓA
+                        </span>
+
+                        <h1 th:text="${formTitle}">
+                            Sản phẩm
+                        </h1>
+
+                        <p>
+                            Thông tin này sẽ được dùng tại màn hình bán hàng
+                            và quản lý kho.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- ERROR MESSAGE -->
+                <div
+                    class="flash danger"
+                    th:if="${errorMessage}"
+                    th:text="${errorMessage}">
+                </div>
+
+                <!-- PRODUCT FORM -->
+                <section class="panel form-panel">
+
+                    <form
+                        class="form-grid"
+                        method="post"
+                        th:action="@{/products/save}">
+
+                        <input
+                            type="hidden"
+                            name="id"
+                            th:value="${product.id}">
+
+                        <!-- SKU -->
+                        <label>
+                            Mã SKU
+
+                            <input
+                                name="sku"
+                                required
+                                maxlength="40"
+                                th:value="${product.sku}"
+                                placeholder="SP007">
+                        </label>
+
+                        <!-- PRODUCT NAME -->
+                        <label>
+                            Tên sản phẩm
+
+                            <input
+                                name="name"
+                                required
+                                maxlength="160"
+                                th:value="${product.name}"
+                                placeholder="Tên mặt hàng">
+                        </label>
+
+                        <!-- PRICE -->
+                        <label>
+                            Giá bán (₫)
+
+                            <input
+                                type="number"
+                                name="price"
+                                min="0"
+                                step="1000"
+                                required
+                                th:value="${product.price}">
+                        </label>
+
+                        <!-- STOCK -->
+                        <label>
+                            Số lượng tồn
+
+                            <input
+                                type="number"
+                                name="stock"
+                                min="0"
+                                required
+                                th:value="${product.stock}">
+                        </label>
+
+                        <!-- FORM ACTIONS -->
+                        <div class="full-width form-actions">
+
+                            <a
+                                class="button button-quiet"
+                                th:href="@{/products}">
+                                Hủy
+                            </a>
+
+                            <button
+                                class="button"
+                                type="submit">
+                                Lưu sản phẩm
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân | Taskio</title>
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+    <main class="main-area">
+        <header class="topbar">
+            <span class="breadcrumb">TASKIO <span>/</span> TÀI KHOẢN <span>/</span> HỒ SƠ</span>
+            <div class="topbar-right">
+                <a class="top-link" th:href="@{/pos}">Mở màn hình bán hàng</a>
+                <div th:replace="~{fragments/header :: accountMenu}"></div>
+            </div>
+        </header>
+        <section class="page-content">
+            <div class="page-heading">
+                <div><span class="eyebrow">TÀI KHOẢN CỦA BẠN</span><h1>Hồ sơ cá nhân</h1>
+                    <p>Cập nhật tên hiển thị và mật khẩu đăng nhập.</p></div>
+            </div>
+            <div th:if="${successMessage}" class="flash success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="flash danger" th:text="${errorMessage}"></div>
+            <section class="panel profile-panel">
+                <div class="profile-summary">
+                    <span class="avatar profile-avatar">
+                        <img th:if="${!#strings.isEmpty(currentUser.avatar)}" th:src="${currentUser.avatar}" alt="Ảnh đại diện">
+                        <span th:unless="${!#strings.isEmpty(currentUser.avatar)}" th:text="${currentUser.initial}">T</span>
+                    </span>
+                    <div><h2 th:text="${profile.display_name}">Tên tài khoản</h2>
+                        <p th:text="${profile.role == 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}">Nhân viên</p></div>
+                </div>
+                <form method="post" th:action="@{/profile}" enctype="multipart/form-data" class="form-grid profile-form">
+                    <label>Tên đăng nhập
+                        <input type="text" th:value="${profile.username}" readonly>
+                        <small>Tên đăng nhập dùng để vào hệ thống, không thể chỉnh sửa tại đây.</small>
+                    </label>
+                    <label>Phân quyền
+                        <input type="text" th:value="${profile.role == 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}" readonly>
+                        <small>Liên hệ quản trị viên nếu cần thay đổi quyền.</small>
+                    </label>
+                    <label class="full-width">Tên hiển thị
+                        <input type="text" name="displayName" maxlength="100" required th:value="${profile.display_name}" placeholder="Tên sẽ hiện bên cạnh avatar">
+                    </label>
+                    <label class="full-width">Ảnh đại diện
+                        <input type="file" name="avatar" accept="image/png,image/jpeg,image/webp">
+                        <small>Chọn ảnh JPG, PNG hoặc WEBP, dung lượng tối đa 2 MB. Bỏ trống để giữ ảnh hiện tại.</small>
+                    </label>
+                    <div class="profile-section-title full-width"><b>Đổi mật khẩu</b><small>Để trống nếu bạn muốn giữ mật khẩu hiện tại.</small></div>
+                    <label>Mật khẩu mới<input type="password" name="newPassword" minlength="6" autocomplete="new-password" placeholder="Tối thiểu 6 ký tự"></label>
+                    <label>Nhập lại mật khẩu mới<input type="password" name="confirmPassword" minlength="6" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới"></label>
+                    <div class="full-width profile-actions"><button class="button" type="submit">Lưu thay đổi</button><a class="button button-secondary" th:href="@{/dashboard}">Quay lại tổng quan</a></div>
+                </form>
+            </section>
+            <footer class="page-footer">© 2026 Taskio <span>Quản lý bán hàng tinh gọn</span></footer>
+        </section>
+    </main>
+</div>
+</body>
+</html>

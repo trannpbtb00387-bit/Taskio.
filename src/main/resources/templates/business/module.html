@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title + ' | Taskio'}">Taskio</title>
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <div>
+                <span class="breadcrumb">TASKIO <span>/</span> QUẢN LÝ</span>
+            </div>
+            <div class="topbar-right">
+                <a class="top-link" th:href="@{/pos}">Mở màn hình bán hàng</a>
+                <a class="top-link" th:href="@{/about}">Trang giới thiệu</a>
+                <span class="top-divider"></span>
+                <div th:replace="~{fragments/header :: accountMenu}"></div>
+            </div>
+        </header>
+
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">KHÔNG GIAN VẬN HÀNH</span>
+                    <h1 th:text="${title}">Quản lý</h1>
+                    <p th:text="${description}">Quản lý hoạt động cửa hàng.</p>
+                </div>
+            </div>
+
+            <div class="flash success"
+                 th:if="${successMessage}"
+                 th:text="${successMessage}"></div>
+            <div class="flash danger"
+                 th:if="${errorMessage}"
+                 th:text="${errorMessage}"></div>
+
+            <!-- ĐƠN HÀNG -->
+            <section class="panel"
+                     th:if="${view == 'orders' or view == 'uncompleted'}">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Đơn hàng</h2>
+                        <p>Đơn online bị trừ kho khi đặt; hủy đơn sẽ hoàn lại kho.</p>
+                    </div>
+                    <span class="pill-count"
+                          th:text="${#lists.size(orders) + ' đơn'}">0 đơn</span>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>MÃ ĐƠN</th>
+                            <th>NGUỒN</th>
+                            <th>THỜI GIAN</th>
+                            <th>KHÁCH HÀNG</th>
+                            <th>ĐỊA CHỈ GIAO</th>
+                            <th>NHÂN VIÊN</th>
+                            <th>TỔNG TIỀN</th>
+                            <th>TRẠNG THÁI</th>
+                            <th>CẬP NHẬT</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="o : ${orders}">
+                            <td class="code" th:text="${'#' + o.id}">#1</td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${o.order_channel == 'ONLINE'
+                                          ? ' status-blue' : ' status-gray'}"
+                                      th:text="${o.order_channel == 'ONLINE'
+                                          ? 'Online' : 'Tại quầy'}">Tại quầy</span>
+                            </td>
+                            <td th:text="${o.created_date}">Ngày</td>
+                            <td th:text="${o.customer_name != null
+                                ? o.customer_name : 'Khách lẻ'}">Khách</td>
+                            <td th:text="${o.shipping_address != null
+                                ? o.shipping_address : '—'}">—</td>
+                            <td th:text="${o.username != null
+                                ? o.username : 'Chưa phân công'}">—</td>
+                            <td class="money"
+                                th:text="${#numbers.formatDecimal(
+                                    o.total_amount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${o.status == 'COMPLETED'
+                                          ? ' status-green'
+                                          : (o.status == 'CANCELLED'
+                                              ? ' status-red' : ' status-amber')}"
+                                      th:text="${o.status == 'PENDING'
+                                          ? 'Chờ xác nhận'
+                                          : (o.status == 'PROCESSING'
+                                              ? 'Đang xử lý'
+                                              : (o.status == 'CANCELLED'
+                                                  ? 'Đã hủy' : 'Hoàn tất'))}">
+                                    Chờ xác nhận
+                                </span>
+                            </td>
+							<td>
+							    <!-- Admin phân công đơn online -->
+							    <form class="inline-form"
+							          method="post"
+							          th:if="${currentUser != null
+							              and currentUser.role == 'Quản trị viên'
+							              and o.order_channel == 'ONLINE'
+							              and (o.status == 'PENDING' or o.status == 'PROCESSING')}"
+							          th:action="@{/orders/{id}/assign(id=${o.id})}">
+
+							        <select name="employeeId" aria-label="Phân công nhân viên" required>
+							            <option value="">Chọn nhân viên</option>
+							            <option th:each="staff : ${staffOptions}"
+							                    th:value="${staff.id}"
+							                    th:text="${staff.display_name}"
+							                    th:selected="${staff.id == o.handled_by_user_id}">
+							            </option>
+							        </select>
+
+							        <button class="button button-small" type="submit">Giao đơn</button>
+							    </form>
+
+							    <!-- Admin hoặc nhân viên được giao cập nhật trạng thái -->
+							    <form class="inline-form"
+							          method="post"
+							          th:if="${currentUser != null
+							              and (currentUser.role == 'Quản trị viên'
+							                   or o.handled_by_user_id == currentUserId)
+							              and (o.status == 'PENDING' or o.status == 'PROCESSING')}"
+							          th:action="@{/orders/{id}/status(id=${o.id})}">
+
+							        <select name="status" aria-label="Trạng thái mới">
+							            <option th:if="${o.status == 'PENDING'}"
+							                    value="PROCESSING">Đang xử lý</option>
+							            <option value="CANCELLED">Hủy đơn</option>
+							            <option th:if="${o.status == 'PROCESSING'}"
+							                    value="COMPLETED">Hoàn tất</option>
+							        </select>
+
+							        <button class="button button-small" type="submit">Lưu</button>
+							    </form>
+
+							    <span th:if="${o.status == 'COMPLETED' or o.status == 'CANCELLED'}">—</span>
+							</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(orders)}">
+                            <td colspan="9" class="empty-state">
+                                Chưa có đơn hàng trong mục này.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TRẢ HÀNG -->
+            <div class="two-column" th:if="${view == 'sales-returns'}">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Tạo phiếu trả hàng</h2>
+                            <p>Chỉ nhận hàng đã thuộc đơn hoàn tất.</p>
+                        </div>
+                    </div>
+                    <form class="form-grid" method="post" th:action="@{/orders/returns}">
+                        <label>Mã hóa đơn
+                            <input type="number" name="orderId" min="1"
+                                   required placeholder="Ví dụ: 12">
+                        </label>
+                        <label>Sản phẩm
+                            <select name="productId" required>
+                                <option value="">Chọn sản phẩm</option>
+                                <option th:each="p : ${products}"
+                                        th:value="${p.id}"
+                                        th:text="${p.sku + ' · ' + p.name}"></option>
+                            </select>
+                        </label>
+                        <label>Số lượng trả
+                            <input type="number" name="quantity" min="1" required>
+                        </label>
+                        <label class="full-width">Lý do
+                            <textarea name="reason" rows="3" required
+                                      placeholder="Mô tả ngắn lý do khách trả hàng"></textarea>
+                        </label>
+                        <div class="full-width">
+                            <button class="button" type="submit">Tạo phiếu và nhập lại kho</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Phiếu gần đây</h2>
+                            <p>Các phiếu được chấp nhận sẽ cộng tồn kho.</p>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>PHIẾU</th>
+                                <th>ĐƠN</th>
+                                <th>LÝ DO</th>
+                                <th>HOÀN TIỀN</th>
+                                <th>NGÀY TẠO</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="r : ${returns}">
+                                <td class="code" th:text="${'RT-' + r.id}">RT-1</td>
+                                <td th:text="${'#' + r.order_id}">#1</td>
+                                <td th:text="${r.reason}">Lý do</td>
+                                <td class="money"
+                                    th:text="${#numbers.formatDecimal(
+                                        r.refund_amount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</td>
+                                <td th:text="${r.created_at}">Ngày</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(returns)}">
+                                <td colspan="5" class="empty-state">
+                                    Chưa phát sinh phiếu trả hàng.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TỒN KHO -->
+            <section class="panel" th:if="${view == 'inventory'}">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Tình hình tồn kho</h2>
+                        <p>Mức cảnh báo mặc định: dưới 5 sản phẩm.</p>
+                    </div>
+                    <span class="pill-count"
+                          th:text="${#lists.size(products) + ' mặt hàng'}">0 mặt hàng</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>SKU</th><th>SẢN PHẨM</th><th>GIÁ BÁN</th>
+                            <th>TỒN KHO</th><th>TÌNH TRẠNG</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${products}">
+                            <td class="code" th:text="${p.sku}">SKU</td>
+                            <td class="strong" th:text="${p.name}">Sản phẩm</td>
+                            <td class="money"
+                                th:text="${#numbers.formatDecimal(
+                                    p.price, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</td>
+                            <td><b th:text="${p.stock}">0</b></td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${p.stock == 0
+                                          ? ' status-red'
+                                          : (p.stock < 5 ? ' status-amber' : ' status-green')}"
+                                      th:text="${p.stock == 0 ? 'Hết hàng'
+                                          : (p.stock < 5 ? 'Sắp hết' : 'Đủ hàng')}">
+                                    Đủ hàng
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(products)}">
+                            <td colspan="5" class="empty-state">Chưa có sản phẩm.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- NHẬP HÀNG / TRẢ NHÀ CUNG CẤP -->
+            <div class="two-column"
+                 th:if="${view == 'receipts' or view == 'supplier-returns'}">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2 th:text="${view == 'receipts'
+                                ? 'Lập phiếu nhập' : 'Lập phiếu trả nhà cung cấp'}">Lập phiếu</h2>
+                            <p th:text="${view == 'receipts'
+                                ? 'Lưu phiếu sẽ cộng số lượng vào kho.'
+                                : 'Không thể trả nhiều hơn lượng đang có trong kho.'}">Mô tả</p>
+                        </div>
+                    </div>
+                    <form class="form-grid" method="post"
+                          th:action="${view == 'receipts'
+                              ? '/inventory/receipts' : '/inventory/returns'}">
+                        <label class="full-width">Sản phẩm
+                            <select name="productId" required>
+                                <option value="">Chọn sản phẩm</option>
+                                <option th:each="p : ${products}"
+                                        th:value="${p.id}"
+                                        th:text="${p.sku + ' · ' + p.name + ' (tồn ' + p.stock + ')'}"></option>
+                            </select>
+                        </label>
+                        <label>Số lượng
+                            <input type="number" name="quantity" min="1" required>
+                        </label>
+                        <label th:if="${view == 'receipts'}">Giá nhập / sản phẩm
+                            <input type="number" name="unitCost" min="0"
+                                   step="1000" required>
+                        </label>
+                        <label class="full-width">Ghi chú
+                            <textarea name="note" rows="3"
+                                      placeholder="Nhà cung cấp, lý do điều chỉnh..."></textarea>
+                        </label>
+                        <div class="full-width">
+                            <button class="button" type="submit"
+                                    th:text="${view == 'receipts'
+                                        ? 'Lưu phiếu nhập' : 'Xác nhận trả hàng'}">Lưu phiếu</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Lịch sử phiếu</h2>
+                            <p>Các lần thay đổi kho gần đây.</p>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr><th>MÃ</th><th>SẢN PHẨM</th><th>SỐ LƯỢNG</th>
+                                <th>GHI CHÚ</th><th>THỜI GIAN</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="t : ${transactions}">
+                                <td class="code"
+                                    th:text="${t.reference_code != null
+                                        ? t.reference_code : 'TK-' + t.id}">TK-1</td>
+                                <td th:text="${t.sku + ' · ' + t.name}">SP</td>
+                                <td th:text="${t.quantity}">0</td>
+                                <td th:text="${t.note != null ? t.note : '—'}">Ghi chú</td>
+                                <td th:text="${t.created_at}">Ngày</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(transactions)}">
+                                <td colspan="5" class="empty-state">Chưa có lịch sử phiếu.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- KHÁCH HÀNG -->
+            <div class="two-column" th:if="${view == 'customers'}">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div><h2>Thêm khách hàng</h2>
+                            <p>Điện thoại giúp tra cứu nhanh khi bán hàng.</p></div>
+                    </div>
+                    <form class="form-grid" method="post" th:action="@{/customers}">
+                        <label class="full-width">Họ và tên
+                            <input name="fullName" required maxlength="120">
+                        </label>
+                        <label>Số điện thoại
+                            <input name="phone" maxlength="20">
+                        </label>
+                        <label>Email
+                            <input type="email" name="email" maxlength="160">
+                        </label>
+                        <label class="full-width">Địa chỉ
+                            <input name="address" maxlength="300">
+                        </label>
+                        <div class="full-width">
+                            <button class="button" type="submit">Lưu khách hàng</button>
+                        </div>
+                    </form>
+                </section>
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div><h2>Danh sách khách hàng</h2>
+                            <p>Chi tiêu được tính từ các đơn hoàn tất.</p></div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr><th>KHÁCH HÀNG</th><th>LIÊN HỆ</th>
+                                <th>SỐ ĐƠN</th><th>ĐÃ CHI TIÊU</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c : ${customers}">
+                                <td class="strong" th:text="${c.full_name}">Tên</td>
+                                <td>
+                                    <span th:text="${c.phone != null
+                                        ? c.phone : 'Chưa có SĐT'}">SĐT</span>
+                                    <small class="cell-sub" th:text="${c.email}">Email</small>
+                                </td>
+                                <td th:text="${c.order_count}">0</td>
+                                <td class="money"
+                                    th:text="${#numbers.formatDecimal(
+                                        c.spent, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(customers)}">
+                                <td colspan="4" class="empty-state">
+                                    Chưa có khách hàng. Hãy thêm khách hàng đầu tiên.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- KHÁCH HÀNG THÂN THIẾT -->
+            <section class="panel" th:if="${view == 'loyal-customers'}">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Khách hàng thân thiết</h2>
+                        <p>Danh sách xếp theo tổng chi tiêu từ cao xuống thấp.</p>
+                    </div>
+                    <span class="pill-count">Mốc thân thiết · 1 triệu ₫</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>KHÁCH HÀNG</th><th>SỐ ĐIỆN THOẠI</th>
+                            <th>SỐ ĐƠN</th><th>TỔNG CHI TIÊU</th><th>HẠNG</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="c : ${customers}">
+                            <td class="strong" th:text="${c.full_name}">Tên</td>
+                            <td th:text="${c.phone != null ? c.phone : '—'}">SĐT</td>
+                            <td th:text="${c.order_count}">0</td>
+                            <td class="money"
+                                th:text="${#numbers.formatDecimal(
+                                    c.spent, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</td>
+                            <td><span class="status-badge status-green">Thân thiết</span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(customers)}">
+                            <td colspan="5" class="empty-state">
+                                Chưa có khách đạt mốc thân thiết.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- KHUYẾN MÃI -->
+            <div class="two-column" th:if="${view == 'promotions'}">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Tạo mã giảm giá</h2>
+                            <p>Tạo ưu đãi cho hóa đơn bán hàng tại quầy.</p>
+                        </div>
+                    </div>
+                    <form class="form-grid" method="post" th:action="@{/promotions}">
+                        <label>Mã khuyến mãi
+                            <input name="code" required maxlength="40"
+                                   placeholder="TASKIO10">
+                        </label>
+                        <label>Tên chương trình
+                            <input name="name" required maxlength="120"
+                                   placeholder="Ưu đãi khách mới">
+                        </label>
+                        <label>Kiểu giảm
+                            <select name="discountType">
+                                <option value="PERCENT">Theo phần trăm (%)</option>
+                                <option value="AMOUNT">Theo số tiền (₫)</option>
+                            </select>
+                        </label>
+                        <label>Mức giảm
+                            <input type="number" name="discountValue" min="1"
+                                   step="1000" required>
+                        </label>
+                        <label>Đơn tối thiểu
+                            <input type="number" name="minimumOrderAmount" min="0"
+                                   step="1000" value="0">
+                        </label>
+                        <label>Bắt đầu
+                            <input type="datetime-local" name="startsAt">
+                        </label>
+                        <label>Kết thúc
+                            <input type="datetime-local" name="endsAt">
+                        </label>
+                        <div class="full-width">
+                            <button class="button" type="submit">Tạo chương trình</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Chương trình đã tạo</h2>
+                            <p>Kiểm tra mã và thời gian áp dụng.</p>
+                        </div>
+                    </div>
+                    <div class="promo-list">
+                        <article class="promo-card" th:each="p : ${promotions}">
+                            <div class="promo-code" th:text="${p.code}">CODE</div>
+                            <div class="promo-info">
+                                <b th:text="${p.name}">Tên ưu đãi</b>
+                                <span th:text="${p.discount_type == 'PERCENT'
+                                    ? p.discount_value + '%'
+                                    : #numbers.formatDecimal(
+                                        p.discount_value, 0, 'COMMA', 0, 'POINT') + ' ₫'}">10%</span>
+                                <small th:text="${'Đã dùng ' + p.usage_count
+                                    + (p.usage_limit != null
+                                        ? ' / ' + p.usage_limit : '')}">Đã dùng</small>
+                            </div>
+                            <span class="status-badge"
+                                  th:classappend="${p.active
+                                      ? ' status-green' : ' status-gray'}"
+                                  th:text="${p.active ? 'Đang bật' : 'Tạm dừng'}">Đang bật</span>
+                        </article>
+                        <div class="empty-state" th:if="${#lists.isEmpty(promotions)}">
+                            Chưa có chương trình. Tạo mã đầu tiên ở biểu mẫu bên trái.
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- BÁO CÁO -->
+            <section class="panel" th:if="${view == 'reports'}">
+                <div class="stat-grid">
+                    <article class="stat-card">
+                        <span class="stat-icon teal">▦</span>
+                        <small>Sản phẩm</small>
+                        <b th:text="${summary.product_count}">0</b>
+                        <span>Đang quản lý</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon blue">▤</span>
+                        <small>Đơn hàng</small>
+                        <b th:text="${summary.order_count}">0</b>
+                        <span>Đã ghi nhận</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon green">₫</span>
+                        <small>Doanh thu hoàn tất</small>
+                        <b th:text="${#numbers.formatDecimal(
+                            summary.revenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</b>
+                        <span>Tính từ đơn hoàn tất</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon amber">!</span>
+                        <small>Sắp hết hàng</small>
+                        <b th:text="${summary.low_stock_count}">0</b>
+                        <span>Tồn dưới 5</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon violet">♙</span>
+                        <small>Khách hàng</small>
+                        <b th:text="${summary.customer_count}">0</b>
+                        <span>Trong danh sách</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon rose">◷</span>
+                        <small>Đơn đang xử lý</small>
+                        <b th:text="${summary.pending_count}">0</b>
+                        <span>Chưa hoàn tất</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon amber">↓</span>
+                        <small>Tiền nhập kho</small>
+                        <b th:text="${#numbers.formatDecimal(
+                            summary.inventory_spend, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</b>
+                        <span>Tổng phiếu nhập đã ghi nhận</span>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon violet">↗</span>
+                        <small>Lợi nhuận tạm tính</small>
+                        <b th:text="${#numbers.formatDecimal(
+                            summary.estimated_profit, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</b>
+                        <span>Doanh thu hoàn tất trừ tiền nhập kho</span>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel" th:if="${view == 'reports'}">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Cần chú ý nhập hàng</h2>
+                        <p>Danh sách các mặt hàng có tồn kho thấp.</p>
+                    </div>
+                    <a class="text-link" th:href="@{/inventory}">Mở quản lý kho →</a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>SKU</th><th>SẢN PHẨM</th><th>TỒN</th><th>GỢI Ý</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${lowStock}">
+                            <td class="code" th:text="${p.sku}">SKU</td>
+                            <td th:text="${p.name}">Sản phẩm</td>
+                            <td><span class="stock-low" th:text="${p.stock}">0</span></td>
+                            <td><a th:href="@{/inventory/receipts}">Tạo phiếu nhập</a></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(lowStock)}">
+                            <td colspan="4" class="empty-state">
+                                Kho đang ổn định, chưa có sản phẩm dưới ngưỡng.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="page-footer">
+                © 2026 Taskio <span>Quản lý bán hàng tinh gọn</span>
+            </footer>
+        </section>
+    </main>
+</div>
+</body>
+</html>

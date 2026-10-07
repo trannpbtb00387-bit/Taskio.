@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taskio | Quản lý cửa hàng gọn nhẹ</title>
+
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
+
+<body>
+
+    <header class="public-header">
+
+        <a class="public-brand" th:href="@{/}">
+            <span class="public-mark">t</span>taskio<span class="brand-dot">.</span>
+        </a>
+
+        <nav class="public-nav">
+
+            <details class="solution-menu">
+                <summary>
+                    Giải pháp
+                    <span></span>
+                </summary>
+
+                <div class="solution-popover">
+
+                    <a href="#features">
+                        <b>Quản lý sản phẩm</b>
+                        <small>Theo dõi SKU, giá bán và tồn kho</small>
+                    </a>
+
+                    <a href="#features">
+                        <b>Bán hàng POS</b>
+                        <small>Tạo hóa đơn nhanh tại quầy</small>
+                    </a>
+
+                    <a href="#features">
+                        <b>Quản lý đơn hàng</b>
+                        <small>Kiểm soát trạng thái và trả hàng</small>
+                    </a>
+
+                </div>
+            </details>
+
+            <a href="#features">Tính năng</a>
+            <a href="#about-taskio">Về Taskio</a>
+
+        </nav>
+
+        <div class="public-actions">
+            <a class="login-link" th:href="@{/login}">Đăng nhập</a>
+            <a class="signup-link" th:href="@{/register}">Dùng thử</a>
+        </div>
+
+    </header>
+
+    <main>
+
+        <!-- HERO -->
+        <section class="hero">
+
+            <div class="hero-copy">
+
+                <span class="hero-label">
+                    <i></i>
+                    VẬN HÀNH CỬA HÀNG GỌN HƠN
+                </span>
+
+                <h1>
+                    Mọi hoạt động bán hàng<br>
+                    <em>trong tầm tay bạn.</em>
+                </h1>
+
+                <p>
+                    Taskio giúp cửa hàng nhỏ quản lý sản phẩm, xử lý đơn hàng
+                    và theo dõi tồn kho trên cùng một màn hình dễ dùng.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a class="signup-link large" th:href="@{/register}">
+                        Bắt đầu sử dụng
+                        <span>→</span>
+                    </a>
+
+                    <a class="secondary-link" href="#features">
+                        Khám phá tính năng
+                    </a>
+
+                </div>
+
+                <div class="hero-note">
+                    <span class="note-check">✓</span>
+                    Dễ làm quen
+                    <span class="note-separator">·</span>
+                    Theo dõi kho tức thì
+                    <span class="note-separator">·</span>
+                    Phù hợp cửa hàng nhỏ
+                </div>
+
+            </div>
+
+            <!-- HERO VISUAL -->
+            <div class="hero-visual">
+
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+
+                <div class="mock-window">
+
+                    <div class="mock-top">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <small>taskio. / Tổng quan</small>
+                    </div>
+
+                    <div class="mock-content">
+
+                        <div class="mock-greet">
+                            <span>Thứ Hai, 26 tháng 9</span>
+                            <b>
+                                Tổng quan cửa hàng
+                                <i>☀</i>
+                            </b>
+                        </div>
+
+                        <div class="mock-stats">
+
+                            <article>
+                                <small>Doanh thu hôm nay</small>
+                                <b>8.450.000 ₫</b>
+                                <span>↑ 12,8% so với hôm qua</span>
+                            </article>
+
+                            <article>
+                                <small>Đơn hàng</small>
+                                <b>24</b>
+                                <span>6 đơn đang xử lý</span>
+                            </article>
+
+                        </div>
+
+                        <div class="mock-chart">
+
+                            <div class="chart-heading">
+                                <b>Hoạt động bán hàng</b>
+                                <small>7 ngày qua</small>
+                            </div>
+
+                            <div class="chart-bars">
+                                <i style="height: 32%"></i>
+                                <i style="height: 50%"></i>
+                                <i style="height: 42%"></i>
+                                <i style="height: 73%"></i>
+                                <i style="height: 58%"></i>
+                                <i style="height: 89%"></i>
+                                <i style="height: 68%"></i>
+                            </div>
+
+                            <div class="chart-days">
+                                <span>T2</span>
+                                <span>T3</span>
+                                <span>T4</span>
+                                <span>T5</span>
+                                <span>T6</span>
+                                <span>T7</span>
+                                <span>CN</span>
+                            </div>
+
+                        </div>
+
+                        <div class="mock-low">
+
+                            <span class="low-icon">!</span>
+
+                            <span>
+                                <b>Sản phẩm sắp hết</b>
+                                <small>Blazer · còn 3 sản phẩm</small>
+                            </span>
+
+                            <span class="low-tag">Cần nhập</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="float-card">
+
+                    <span>✓</span>
+
+                    <div>
+                        <b>Thanh toán thành công</b>
+                        <small>Kho đã được cập nhật</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TRUST STRIP -->
+        <section class="trust-strip">
+
+            <span>THIẾT KẾ CHO NHỊP VẬN HÀNH HẰNG NGÀY</span>
+
+            <div>
+                <b>Đơn giản để bắt đầu</b>
+                <b>Rõ ràng khi theo dõi</b>
+                <b>Liền mạch từ bán đến kho</b>
+            </div>
+
+        </section>
+
+        <!-- FEATURES -->
+        <section class="feature-section" id="features">
+
+            <div class="section-intro">
+
+                <span class="hero-label">
+                    TASKIO CÓ GÌ?
+                </span>
+
+                <h2>
+                    Các công cụ cần thiết<br>
+                    cho một cửa hàng vận hành tốt
+                </h2>
+
+                <p>
+                    Tập trung vào những thao tác diễn ra mỗi ngày,
+                    để bạn dành thời gian cho khách hàng và việc kinh doanh.
+                </p>
+
+            </div>
+
+            <div class="feature-grid">
+
+                <article>
+
+                    <span class="feature-icon teal-icon">▦</span>
+
+                    <h3>Quản lý sản phẩm</h3>
+
+                    <p>
+                        Tìm theo SKU hoặc tên, cập nhật giá
+                        và kiểm soát số lượng hàng hóa.
+                    </p>
+
+                    <a th:href="@{/login}">
+                        Quản lý danh mục
+                        <b>→</b>
+                    </a>
+
+                </article>
+
+                <article>
+
+                    <span class="feature-icon blue-icon">▤</span>
+
+                    <h3>Bán hàng nhanh</h3>
+
+                    <p>
+                        Thêm sản phẩm vào giỏ, áp dụng mã ưu đãi
+                        và tạo hóa đơn tại quầy.
+                    </p>
+
+                    <a th:href="@{/login}">
+                        Mở màn hình bán hàng
+                        <b>→</b>
+                    </a>
+
+                </article>
+
+                <article>
+
+                    <span class="feature-icon amber-icon">⬡</span>
+
+                    <h3>Kiểm soát tồn kho</h3>
+
+                    <p>
+                        Nhận cảnh báo hàng sắp hết, nhập thêm
+                        hoặc ghi nhận hàng trả.
+                    </p>
+
+                    <a th:href="@{/login}">
+                        Theo dõi kho hàng
+                        <b>→</b>
+                    </a>
+
+                </article>
+
+                <article>
+
+                    <span class="feature-icon violet-icon">▥</span>
+
+                    <h3>Đơn hàng &amp; báo cáo</h3>
+
+                    <p>
+                        Nắm trạng thái xử lý, doanh thu
+                        và các chỉ số quan trọng trong ngày.
+                    </p>
+
+                    <a th:href="@{/login}">
+                        Xem tổng quan
+                        <b>→</b>
+                    </a>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ABOUT -->
+        <section class="about-section" id="about-taskio">
+
+            <div class="about-art">
+
+                <div class="about-orb"></div>
+
+                <div class="about-note note-a">
+                    <span>01</span>
+                    Bán hàng tập trung
+                </div>
+
+                <div class="about-note note-b">
+                    <span>02</span>
+                    Kho hàng rõ ràng
+                </div>
+
+                <div class="about-note note-c">
+                    <span>03</span>
+                    Quy trình dễ theo dõi
+                </div>
+
+            </div>
+
+            <div class="about-copy">
+
+                <span class="hero-label">
+                    VỀ TASKIO
+                </span>
+
+                <h2>
+                    Để cửa hàng nhỏ<br>
+                    quản lý như ý lớn.
+                </h2>
+
+                <p>
+                    Taskio được xây dựng cho những cửa hàng cần một cách làm
+                    gọn gàng để theo dõi hàng hóa, đơn bán và tồn kho.
+                    Mỗi khu vực được sắp xếp theo công việc thật:
+                    bán hàng, xử lý đơn, nhập hàng và chăm sóc khách quen.
+                </p>
+
+                <div class="benefit-list">
+
+                    <div>
+
+                        <i>✓</i>
+
+                        <span>
+                            <b>Ít thao tác rời rạc</b>
+                            <small>
+                                Thông tin bán hàng và kho được đặt cùng một hệ thống.
+                            </small>
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <i>✓</i>
+
+                        <span>
+                            <b>Nhìn rõ việc cần làm</b>
+                            <small>
+                                Đơn chờ xử lý và sản phẩm sắp hết được đưa ra trước mắt.
+                            </small>
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <i>✓</i>
+
+                        <span>
+                            <b>Hữu ích cho cả nhóm</b>
+                            <small>
+                                Nhân viên xử lý đơn; quản trị viên theo dõi và tạo ưu đãi.
+                            </small>
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <a class="signup-link large" th:href="@{/register}">
+                    Bắt đầu với Taskio
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="public-footer">
+
+        <a class="public-brand" th:href="@{/}">
+            <span class="public-mark">t</span>taskio<span class="brand-dot">.</span>
+        </a>
+
+        <span>
+            Quản lý bán hàng tinh gọn cho cửa hàng của bạn.
+        </span>
+
+        <small>
+            © 2026 Taskio
+        </small>
+
+    </footer>
+
+</body>
+</html>

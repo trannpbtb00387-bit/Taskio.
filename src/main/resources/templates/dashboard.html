@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tổng quan | Taskio</title>
+
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+
+<body class="app-body">
+
+<div class="app-shell">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+    <main class="main-area">
+
+        <header class="topbar">
+            <span class="breadcrumb">
+                TASKIO <span>/</span> TỔNG QUAN
+            </span>
+
+            <div class="topbar-right">
+
+                <a class="top-link" th:href="@{/pos}">
+                    Mở màn hình bán hàng
+                </a>
+
+                <div th:replace="~{fragments/header :: accountMenu}"></div>
+
+            </div>
+        </header>
+
+        <section class="page-content">
+
+            <!-- Page heading -->
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">TỔNG QUAN CỬA HÀNG</span>
+
+                    <h1>
+                        Xin chào,
+                        <span th:text="${currentUser.name}">bạn</span>
+                    </h1>
+
+                    <p>
+                        Nắm nhanh tình hình bán hàng và kho của Taskio.
+                    </p>
+                </div>
+
+                <a class="button" th:href="@{/pos}">
+                    ＋ Tạo đơn hàng
+                </a>
+            </div>
+
+            <!-- Statistics -->
+            <section class="stat-grid dashboard-stats">
+
+                <!-- Product count -->
+                <article class="stat-card">
+                    <span class="stat-icon teal">▦</span>
+
+                    <small>Sản phẩm đang quản lý</small>
+
+                    <b th:text="${summary.product_count}">
+                        0
+                    </b>
+
+                    <span>Danh mục hàng hóa</span>
+                </article>
+
+                <!-- Order count -->
+                <article class="stat-card">
+                    <span class="stat-icon blue">▤</span>
+
+                    <small>Tổng hóa đơn</small>
+
+                    <b th:text="${summary.order_count}">
+                        0
+                    </b>
+
+                    <span>Đơn đã ghi nhận</span>
+                </article>
+
+                <!-- Revenue -->
+                <article class="stat-card">
+                    <span class="stat-icon green">₫</span>
+
+                    <small>Doanh thu hoàn tất</small>
+
+                    <b th:text="${#numbers.formatDecimal(summary.revenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                        0 ₫
+                    </b>
+
+                    <span>Đơn hoàn tất sau khi trừ phiếu trả hàng</span>
+                </article>
+
+                <!-- Low stock -->
+                <article class="stat-card">
+                    <span class="stat-icon amber">!</span>
+
+                    <small>Sản phẩm sắp hết</small>
+
+                    <b th:text="${summary.low_stock_count}">
+                        0
+                    </b>
+
+                    <span>Tồn kho dưới 5</span>
+                </article>
+
+                <!-- Inventory spending -->
+                <article class="stat-card">
+                    <span class="stat-icon rose">↓</span>
+
+                    <small>Tiền nhập kho</small>
+
+                    <b th:text="${#numbers.formatDecimal(summary.inventory_spend, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                        0 ₫
+                    </b>
+
+                    <span>
+                        Tổng phiếu nhập đã ghi nhận
+                    </span>
+                </article>
+
+                <!-- Estimated profit -->
+                <article class="stat-card">
+                    <span class="stat-icon violet">↗</span>
+
+                    <small>Lợi nhuận gộp tạm tính</small>
+
+                    <b th:if="${summary.cost_data_complete == 1}"
+                       th:text="${#numbers.formatDecimal(summary.estimated_profit, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                        0 ₫
+                    </b>
+                    <b th:unless="${summary.cost_data_complete == 1}">
+                        Chưa đủ dữ liệu
+                    </b>
+
+                    <span>
+                        Doanh thu sau hoàn tiền trừ giá vốn hàng đã bán
+                    </span>
+                </article>
+
+            </section>
+
+            <!-- Dashboard lower -->
+            <div class="dashboard-lower">
+
+                <!-- Low stock panel -->
+                <section class="panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Cần nhập thêm hàng</h2>
+
+                            <p>
+                                Các sản phẩm có tồn kho dưới 5.
+                            </p>
+                        </div>
+
+                        <a class="text-link" th:href="@{/inventory}">
+                            Quản lý kho →
+                        </a>
+                    </div>
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>SẢN PHẨM</th>
+                                    <th>TỒN</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr th:each="p : ${lowStock}">
+
+                                    <td class="code"
+                                        th:text="${p.sku}">
+                                        SKU
+                                    </td>
+
+                                    <td class="strong"
+                                        th:text="${p.name}">
+                                        Sản phẩm
+                                    </td>
+
+                                    <td>
+                                        <span class="stock-low"
+                                              th:text="${p.stock}">
+                                            0
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <a class="text-link"
+                                           th:href="@{/inventory/receipts}">
+                                            Nhập hàng
+                                        </a>
+                                    </td>
+
+                                </tr>
+
+                                <tr th:if="${#lists.isEmpty(lowStock)}">
+                                    <td colspan="4" class="empty-state">
+                                        Tồn kho đang ổn định.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <!-- Quick actions -->
+                <section class="panel quick-panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Lối tắt</h2>
+
+                            <p>
+                                Các thao tác thường dùng.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- POS -->
+                    <a class="quick-link" th:href="@{/pos}">
+
+                        <span class="quick-icon">
+                            ＋
+                        </span>
+
+                        <span>
+                            <b>Bán hàng</b>
+
+                            <small>
+                                Tạo hóa đơn và cập nhật tồn kho
+                            </small>
+                        </span>
+
+                        <span class="quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+                    <!-- Uncompleted orders -->
+                    <a class="quick-link"
+                       th:href="@{/orders/uncompleted}">
+
+                        <span class="quick-icon blue-icon">
+                            ◷
+                        </span>
+
+                        <span>
+                            <b>Đơn cần xử lý</b>
+
+                            <small th:text="${summary.pending_count + ' đơn chưa hoàn tất'}">
+                                0 đơn
+                            </small>
+                        </span>
+
+                        <span class="quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+                    <!-- Add product -->
+                    <a class="quick-link"
+                       th:href="@{/products/new}">
+
+                        <span class="quick-icon violet-icon">
+                            ▦
+                        </span>
+
+                        <span>
+                            <b>Thêm sản phẩm</b>
+
+                            <small>
+                                Nhập hàng hóa mới vào danh mục
+                            </small>
+                        </span>
+
+                        <span class="quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+                </section>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="page-footer">
+                © 2026 Taskio
+                <span>Quản lý bán hàng tinh gọn</span>
+            </footer>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>
+

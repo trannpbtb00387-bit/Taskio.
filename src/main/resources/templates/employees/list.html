@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý nhân viên | Taskio</title>
+
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+
+<body class="app-body">
+<div class="app-shell">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <span class="breadcrumb">
+                TASKIO <span>/</span> NHÂN SỰ
+            </span>
+
+            <div class="topbar-right">
+                <a class="top-link" th:href="@{/reports}">Báo cáo</a>
+                <div th:replace="~{fragments/header :: accountMenu}"></div>
+            </div>
+        </header>
+
+        <section class="page-content">
+
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">DÀNH CHO QUẢN TRỊ VIÊN</span>
+                    <h1>Quản lý nhân viên</h1>
+                    <p>
+                        Theo dõi đơn hàng, doanh thu và tiền hoa hồng của từng nhân viên.
+                    </p>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}"
+                 class="flash success"
+                 th:text="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="flash danger"
+                 th:text="${errorMessage}">
+            </div>
+
+            <section class="stat-grid employee-stats">
+
+                <article class="stat-card">
+                    <span class="stat-icon teal">♙</span>
+                    <small>Nhân viên</small>
+                    <b th:text="${#lists.size(employees)}">0</b>
+                    <span>Tài khoản nhân viên đang có</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-icon blue">▤</span>
+                    <small>Đơn hoàn tất</small>
+                    <b th:text="${totalCompletedOrders}">0</b>
+                    <span>Tổng số đơn nhân viên đã bán</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-icon green">₫</span>
+                    <small>Doanh thu nhân viên</small>
+                    <b th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                        0 ₫
+                    </b>
+                    <span>Chỉ tính đơn đã hoàn tất</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-icon green">％</span>
+                    <small>Tổng hoa hồng</small>
+                    <b th:text="${#numbers.formatDecimal(totalCommission, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                        0 ₫
+                    </b>
+                    <span>Hoa hồng tính theo doanh thu hoàn tất</span>
+                </article>
+
+            </section>
+
+            <section class="panel employee-table-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Hiệu quả bán hàng theo nhân viên</h2>
+                        <p>
+                            Hoa hồng được tính theo tỷ lệ riêng của từng nhân viên.
+                        </p>
+                    </div>
+
+                    <span class="pill-count"
+                          th:text="${#lists.size(employees) + ' nhân viên'}">
+                        0 nhân viên
+                    </span>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>NHÂN VIÊN</th>
+                            <th>TÊN ĐĂNG NHẬP</th>
+                            <th>ĐƠN HOÀN TẤT</th>
+                            <th>DOANH THU</th>
+                            <th>HOA HỒNG</th>
+                            <th>THAO TÁC</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="employee : ${employees}">
+                            <td class="strong"
+                                th:text="${employee.display_name}">
+                                Tên nhân viên
+                            </td>
+
+                            <td class="code"
+                                th:text="${employee.username}">
+                                username
+                            </td>
+
+                            <td>
+                                <span class="status-badge status-green"
+                                      th:text="${employee.completed_orders}">
+                                    0
+                                </span>
+                            </td>
+
+                            <td class="money"
+                                th:text="${#numbers.formatDecimal(employee.revenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                                0 ₫
+                            </td>
+
+                            <td>
+                                <strong class="money"
+                                        th:text="${#numbers.formatDecimal(employee.commission_amount, 0, 'COMMA', 0, 'POINT') + ' ₫'}">
+                                    0 ₫
+                                </strong>
+
+                                <small class="cell-sub"
+                                       th:text="${'Tỷ lệ: ' + employee.commission_rate + '%'}">
+                                    Tỷ lệ: 5%
+                                </small>
+                            </td>
+
+                            <td>
+                                <a class="button button-small button-outline"
+                                   th:href="@{/employees/{id}/edit(id=${employee.id})}">
+                                    Sửa hồ sơ
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(employees)}">
+                            <td colspan="6" class="empty-state">
+                                Chưa có tài khoản nhân viên.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+            <footer class="page-footer">
+                © 2026 Taskio
+                <span>Quản lý bán hàng tinh gọn</span>
+            </footer>
+
+        </section>
+    </main>
+</div>
+</body>
+</html>

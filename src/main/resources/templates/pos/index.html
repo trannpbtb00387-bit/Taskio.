@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Bán hàng POS | Taskio</title>
+
+    <link rel="stylesheet" th:href="@{/css/taskio.css}">
+    <link rel="stylesheet" th:href="@{/css/taskio-extra.css}">
+</head>
+
+<body class="app-body">
+
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+        <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+        <!-- MAIN -->
+        <main class="main-area">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+
+                <span class="breadcrumb">
+                    TASKIO <span>/</span> BÁN HÀNG
+                </span>
+
+                <div class="topbar-right">
+
+                    <a class="top-link" th:href="@{/orders}">
+                        Đơn hàng
+                    </a>
+
+                    <span class="top-divider"></span>
+
+                    <div th:replace="~{fragments/header :: accountMenu}"></div>
+
+                </div>
+
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <section class="page-content">
+
+                <!-- PAGE HEADING -->
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            ĐIỂM BÁN HÀNG
+                        </span>
+
+                        <h1>
+                            Bán hàng nhanh
+                        </h1>
+
+                        <p>
+                            Chọn sản phẩm, kiểm tra giỏ và thanh toán
+                            để trừ kho tự động.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- FLASH MESSAGES -->
+                <div
+                    class="flash success"
+                    th:if="${successMessage}"
+                    th:text="${successMessage}">
+                </div>
+
+                <div
+                    class="flash danger"
+                    th:if="${errorMessage}"
+                    th:text="${errorMessage}">
+                </div>
+
+                <!-- POS GRID -->
+                <div class="pos-grid">
+
+                    <!-- PRODUCTS -->
+                    <section class="panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+
+                                <h2>
+                                    Sản phẩm
+                                </h2>
+
+                                <p>
+                                    Chỉ sản phẩm còn hàng mới có thể
+                                    thêm vào giỏ.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <!-- SEARCH -->
+                        <form
+                            class="search-row"
+                            method="get"
+                            th:action="@{/pos}">
+
+                            <input
+                                name="q"
+                                placeholder="Tìm SKU hoặc tên sản phẩm">
+
+                            <button
+                                class="button button-small"
+                                type="submit">
+                                Tìm kiếm
+                            </button>
+
+                        </form>
+
+                        <!-- PRODUCT GRID -->
+                        <div class="product-grid">
+
+                            <article
+                                class="product-tile"
+                                th:each="p : ${products}">
+
+                                <div class="product-tile-top">
+
+                                    <span
+                                        class="code"
+                                        th:text="${p.sku}">
+                                        SKU
+                                    </span>
+
+                                    <span
+                                        class="stock-label"
+                                        th:text="${'Tồn ' + p.stock}">
+                                        Tồn
+                                    </span>
+
+                                </div>
+
+                                <b th:text="${p.name}">
+                                    Tên sản phẩm
+                                </b>
+
+                                <strong
+                                    class="money"
+                                    th:text="${#numbers.formatDecimal(
+                                        p.price,
+                                        0,
+                                        'COMMA',
+                                        0,
+                                        'POINT'
+                                    ) + ' ₫'}">
+                                    0 ₫
+                                </strong>
+
+                                <!-- ADD TO CART -->
+                                <form
+                                    method="post"
+                                    th:action="@{/pos/cart/add}"
+                                    class="add-cart-form">
+
+                                    <input
+                                        type="hidden"
+                                        name="productId"
+                                        th:value="${p.id}">
+
+                                    <input
+                                        type="number"
+                                        name="quantity"
+                                        value="1"
+                                        min="1"
+                                        th:max="${p.stock}"
+                                        th:disabled="${p.stock == 0}"
+                                        aria-label="Số lượng">
+
+                                    <button
+                                        class="button button-small"
+                                        type="submit"
+                                        th:disabled="${p.stock == 0}">
+                                        Thêm
+                                    </button>
+
+                                </form>
+
+                            </article>
+
+                            <!-- EMPTY PRODUCTS -->
+                            <div
+                                class="empty-state"
+                                th:if="${#lists.isEmpty(products)}">
+                                Không tìm thấy sản phẩm.
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- CART -->
+                    <section class="panel cart-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+
+                                <h2>
+                                    Giỏ hàng
+                                </h2>
+
+                                <p
+                                    th:text="${#lists.size(cart) + ' sản phẩm'}">
+                                    0 sản phẩm
+                                </p>
+
+                            </div>
+
+                            <span class="cart-bag">
+                                ▤
+                            </span>
+
+                        </div>
+
+                        <!-- CART ITEMS -->
+                        <div class="cart-lines">
+
+                            <article
+                                class="cart-line"
+                                th:each="item : ${cart}">
+
+                                <div class="cart-product">
+
+                                    <b th:text="${item.name}">
+                                        Sản phẩm
+                                    </b>
+
+                                    <small
+                                        th:text="${item.sku + ' · ' + item.quantity + ' × ' + #numbers.formatDecimal(
+                                            item.price,
+                                            0,
+                                            'COMMA',
+                                            0,
+                                            'POINT'
+                                        ) + ' ₫'}">
+                                        Chi tiết
+                                    </small>
+
+                                </div>
+
+                                <strong
+                                    th:text="${#numbers.formatDecimal(
+                                        item.line_total,
+                                        0,
+                                        'COMMA',
+                                        0,
+                                        'POINT'
+                                    ) + ' ₫'}">
+                                    0 ₫
+                                </strong>
+
+                                <!-- REMOVE ITEM -->
+                                <form
+                                    method="post"
+                                    th:action="@{/pos/cart/remove}">
+
+                                    <input
+                                        type="hidden"
+                                        name="productId"
+                                        th:value="${item.id}">
+
+                                    <button
+                                        class="remove-button"
+                                        type="submit"
+                                        aria-label="Xóa khỏi giỏ">
+                                        ×
+                                    </button>
+
+                                </form>
+
+                            </article>
+
+                            <!-- EMPTY CART -->
+                            <div
+                                class="empty-state cart-empty"
+                                th:if="${cartEmpty}">
+                                Chưa có sản phẩm trong giỏ.
+                                <br>
+                                Hãy chọn sản phẩm ở danh sách bên trái.
+                            </div>
+
+                        </div>
+
+                        <!-- CART TOTAL -->
+                        <div class="cart-total">
+
+                            <span>
+                                Tổng thanh toán
+                            </span>
+
+                            <b
+                                th:text="${#numbers.formatDecimal(
+                                    cartTotal,
+                                    0,
+                                    'COMMA',
+                                    0,
+                                    'POINT'
+                                ) + ' ₫'}">
+                                0 ₫
+                            </b>
+
+                        </div>
+
+                        <!-- CHECKOUT -->
+                        <form
+                            method="post"
+                            th:action="@{/pos/checkout}"
+                            class="checkout-form">
+
+                            <!-- CUSTOMER -->
+                            <label>
+                                Khách hàng (không bắt buộc)
+
+                                <select name="customerId">
+
+                                    <option value="">
+                                        Khách lẻ
+                                    </option>
+
+                                    <option
+                                        th:each="c : ${customers}"
+                                        th:value="${c.id}"
+                                        th:text="${c.full_name}">
+                                    </option>
+
+                                </select>
+
+                            </label>
+							<details class="new-customer-box">
+														    <summary>＋ Nhập thông tin khách hàng mới</summary>
+
+														    <div class="new-customer-fields">
+														        <label>
+														            Tên khách hàng
+														            <input type="text"
+														                   name="newCustomerName"
+														                   maxlength="120"
+														                   placeholder="Nhập tên khách mua">
+														        </label>
+
+														        <label>
+														            Số điện thoại
+														            <input type="tel"
+														                   name="newCustomerPhone"
+														                   maxlength="20"
+														                   placeholder="Không bắt buộc">
+														        </label>
+
+														        <small>
+														            Khách sẽ được lưu vào danh sách khi thanh toán hóa đơn.
+														        </small>
+														    </div>
+														</details>
+
+                            <!-- PROMOTION -->
+                            <label>
+                                Mã khuyến mãi (không bắt buộc)
+
+                                <input
+                                    name="promotionCode"
+                                    placeholder="Nhập mã giảm giá">
+                            </label>
+
+                            <button
+                                class="button checkout-button"
+                                type="submit"
+                                th:disabled="${cartEmpty}">
+                                Thanh toán và trừ kho
+                            </button>
+
+                        </form>
+
+                        <p class="cart-hint">
+                            Tồn kho chỉ thay đổi sau khi thanh toán thành công.
+                        </p>
+
+                    </section>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
